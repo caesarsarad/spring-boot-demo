@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>数学题入库</title>
+    <!--個別CSS読込-->
+    <link rel="stylesheet" th:href="@{/css/study/list.css}">
+</head>
+<body>
+
+<div layout:fragment="content">
+    <form action="/mathsearch" method="post" th:object="${mathVo}" >
+   <div class="header border-bottom">
+    <h1 class="h2">搜索条件</h1>
+       <label for="conditionQuestionId">编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+       <input type="text" id="conditionQuestionId" name="conditionQuestionId" th:value="${conditionQuestionId}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <label for="conditionGrade">年级&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+       <input type="text" id="conditionGrade" name="conditionGrade" th:value="${conditionGrade}">&nbsp;&nbsp;
+       <br>
+       <label for="conditionWrongCountFrom">错误次数From&nbsp;</label>
+       <input type="text" id="conditionWrongCountFrom" name="conditionWrongCountFrom" th:value="${conditionWrongCountFrom}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <label for="conditionWrongCountTo">错误次数To&nbsp;</label>
+       <input type="text" id="conditionWrongCountTo"  name="conditionWrongCountTo" th:value="${conditionWrongCountTo}">
+      <br>
+       <input type="submit" value="検索" />
+   </div>
+    <div class="container">
+        <h1>数学题一览</h1>
+        <div class="float-end">
+            <a th:href="@{/addmath}" class="btn btn-primary">入库</a>
+<!--            <a th:href="@{/templates/study/updatemath" class="btn btn-primary">修改</a>-->
+<!--            <a th:href="@{/templates/study/delmath" class="btn btn-primary">删除</a>-->
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>年级</th>
+                <th>错误次数</th>
+                <th>录入时间</th>
+                <th></th>
+<!--                <th>電話番号</th>-->
+<!--                <th>更新日時</th>-->
+<!--                <th>登録日時</th>-->
+<!--                <th>削除日時</th>-->
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+<!--            <tr th:each="math : ${mathVo.mathList}" th:object="${math}" class="align-middle">-->
+            <tr  th:each="math:${mathList}"  class="align-middle">
+                <td th:text="${math.questionId}"></td>
+                <td th:text="${math.grade}"></td>
+                <td th:text="${math.wrongCount}">></td>
+                <td th:text="${#dates.format(math.addTimestamp, 'yyyy/MM/dd')}">></td>
+                <td></td>
+<!--                <td th:text="*{address}"></td>-->
+<!--                <td th:text="*{phone}"></td>-->
+<!--                <td th:text="${#dates.format(user.updateDate, 'yyyy/MM/dd')}"></td>-->
+<!--                <td th:text="${#dates.format(user.createDate, 'yyyy/MM/dd')}"></td>-->
+<!--                <td th:text="${#dates.format(user.deleteDate, 'yyyy/MM/dd')}"></td>-->
+<!--                <td><a th:href="@{/mathdetail/(questionId=${math.questionId})}" class="btn btn-secondary">詳細</a></td>-->
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </form>
+
+</div>
+
+</body>
+</html>

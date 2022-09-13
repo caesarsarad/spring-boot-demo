@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8" />
+<link th:href="@{css/login/login.css}" rel="stylesheet" type="text/css">
+<!--<link rel="stylesheet" type="text/css" href="/static/css/login/login.css">-->
+<div class="form-wrapper">
+  <h1>学习系统</h1>
+  <form action="/login">
+    <div class="form-item">
+      <input type="text"  name="userName" required="required" placeholder="用户名"></input>
+    </div>
+    <div class="form-item">
+      <input type="password"  name="password" required="required" placeholder="密码"></input>
+    </div>
+    <input type="checkbox" name="rememberMe"/> 记住我
+    <div class="button-panel">
+      <input type="submit" class="button" value="登录"></input>
+    </div>
+  </form>
+  <div class="form-footer">
+    <p><a href="/register" th:method="Post">Create an account</a></p>
+  </div>
+</div>
