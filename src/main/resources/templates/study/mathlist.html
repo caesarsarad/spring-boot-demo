@@ -7,11 +7,14 @@
     <title>数学题入库</title>
     <!--個別CSS読込-->
     <link rel="stylesheet" th:href="@{/css/study/list.css}">
+    <!-- Bootstrap CSS -->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">-->
+<!--    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.2/css/all.css" integrity="sha384-/rXc/GQVaYpyDdyxK+ecHPVYJSN9bmVFBvjA/9eOB+pb3F2w2N6fc5qB9Ew5yIns" crossorigin="anonymous">-->
 </head>
 <body>
 
 <div layout:fragment="content">
-    <form action="/mathsearch" method="post" th:object="${mathVo}" >
+    <form action="/studymanagement/mathsearch" method="get" th:object="${mathVo}" >
    <div class="header border-bottom">
     <h1 class="h2">搜索条件</h1>
        <label for="conditionQuestionId">编号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -24,18 +27,23 @@
        <label for="conditionWrongCountTo">错误次数To&nbsp;</label>
        <input type="text" id="conditionWrongCountTo"  name="conditionWrongCountTo" th:value="${conditionWrongCountTo}">
       <br>
-       <input type="submit" value="検索" />
+<!--       <input type="submit" value="検索" />-->
+       <button type="submit" name="action" class="btn btn-primary" value="mathsearch">検索</button>
    </div>
+    </form>
+    <form action="/studymanagement/mathsearch" method="post" th:object="${mathVo}"  id="listform">
     <div class="container">
         <h1>数学题一览</h1>
         <div class="float-end">
             <a th:href="@{/addmath}" class="btn btn-primary">入库</a>
+            <button  name="action" class="btn btn-primary" value="mathprint" onclick="printpdf()" >印刷</button>
 <!--            <a th:href="@{/templates/study/updatemath" class="btn btn-primary">修改</a>-->
 <!--            <a th:href="@{/templates/study/delmath" class="btn btn-primary">删除</a>-->
         </div>
         <table class="table table-striped">
             <thead>
             <tr>
+                <th><input type="checkbox" id="checkboxhead" ></th>
                 <th>编号</th>
                 <th>年级</th>
                 <th>错误次数</th>
@@ -49,12 +57,23 @@
             </tr>
             </thead>
             <tbody>
-<!--            <tr th:each="math : ${mathVo.mathList}" th:object="${math}" class="align-middle">-->
-            <tr  th:each="math:${mathList}"  class="align-middle">
+            <tr th:each="math,stat:${mathPageInfo.list}"   class="align-middle">
+                <td><input type="checkbox" th:field="*{mathList[__${stat.index}__].checkbox}" th:value="${math.checkbox}"></td>
                 <td th:text="${math.questionId}"></td>
                 <td th:text="${math.grade}"></td>
                 <td th:text="${math.wrongCount}">></td>
                 <td th:text="${#dates.format(math.addTimestamp, 'yyyy/MM/dd')}">></td>
+<!--                <input type="hidden"  th:field="${mathPageInfo.list[__${stat.index}__].questionId}" />-->
+<!--                <input type="hidden"  th:field="${mathPageInfo.list[__${stat.index}__].questionText}" />-->
+<!--                <input type="hidden"  th:field="${mathPageInfo.list[__${stat.index}__].grade}" />-->
+<!--                <input type="hidden"  th:field="${mathPageInfo.list[__${stat.index}__].wrongCount}" />-->
+<!--                <input type="hidden"  th:field="${mathPageInfo.list[__${stat.index}__].addTimestamp}" />-->
+                <input type="hidden"  th:field="*{mathList[__${stat.index}__].questionId}" />
+                <input type="hidden"  th:field="*{mathList[__${stat.index}__].questionText}" />
+                <input type="hidden"  th:field="*{mathList[__${stat.index}__].grade}" />
+                <input type="hidden"  th:field="*{mathList[__${stat.index}__].wrongCount}" />
+                <input type="hidden"  th:field="*{mathList[__${stat.index}__].addTimestamp}" />
+
                 <td></td>
 <!--                <td th:text="*{address}"></td>-->
 <!--                <td th:text="*{phone}"></td>-->
@@ -62,13 +81,152 @@
 <!--                <td th:text="${#dates.format(user.createDate, 'yyyy/MM/dd')}"></td>-->
 <!--                <td th:text="${#dates.format(user.deleteDate, 'yyyy/MM/dd')}"></td>-->
 <!--                <td><a th:href="@{/mathdetail/(questionId=${math.questionId})}" class="btn btn-secondary">詳細</a></td>-->
-                <td></td>
+                <td>
+                    <button type="button" th:id="${math.questionId}" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal" onclick="opendetail(this.id)">ボタンで開く</button>
+                </td>
             </tr>
             </tbody>
         </table>
+        <div>
+            <div>
+                当前第<span th:text="${mathPageInfo.pageNum}"></span> 页，
+                共<span th:text="${mathPageInfo.pages}"></span> 页，
+                <span th:text="${mathPageInfo.total}"></span>条记录
+            </div>
+            <ul  style="list-style: none;margin: 0px;padding: 0px;">
+                <li th:if="${mathPageInfo.hasPreviousPage}"} style="display:inline"><!--hasPreviousPage默认值为false， 如果有上一页，则不显示首页-->
+                    <a th:href="@{/mathsearch?pageNum=}+${1}">首页</a>
+                </li>
+                <li th:if="${mathPageInfo.hasPreviousPage}" style="display:inline"><!--hasPreviousPage默认值为false， 如果有上一页，则不显示-->
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.prePage}">上一页</a>
+                </li>
+                <li th:each="nav:${mathPageInfo.navigatepageNums}" style="display:inline"><!--navigatepageNums是一个数组：遍历所有导航页号。 -->
+                    <a th:href="@{/mathsearch?pageNum=}+${nav}" th:text="${nav}" th:if="${nav != mathPageInfo.pageNum}"></a><!--如果不是当前页则可以跳转其他页面。遍历展示-->
+                    <a th:class="${'active'}" th:if="${nav == mathPageInfo.pageNum}" th:text="${nav}"></a><!--如果是当前页则有样式。遍历 展示-->
+                </li>
+                <li th:if="${mathPageInfo.hasNextPage}" style="display:inline"><!--hasNextPage默认值为false， 如果没有下一页，则不显示-->
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.nextPage}">下一页</a>
+                </li>
+                <li th:if="${mathPageInfo.pageNum < mathPageInfo.pages}" style="display:inline"><!--如果当前页小于总页数则不显示尾页 -->
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.pages}">尾页</a>
+                </li>
+            </ul>
+        </div>
     </div>
-    </form>
 
+
+        
+    </form>
+    <script type="text/javascript">
+
+
+        function createXMLHttpRequest() {
+            var xmlHttp;
+            try{
+                xmlHttp = new XMLHttpRequest();
+            } catch (e) {
+                // IE6
+                try {
+                    xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    // IE5.5 or early
+                    try{
+                        xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e){}
+                }
+            }
+            return xmlHttp;
+        }
+
+        function opendetail(btnId){
+            var xmlHttp = createXMLHttpRequest();
+            xmlHttp.open("Get", "http://localhost:8080/studymanagement/getdetail?questionid=" + btnId);
+            xmlHttp.send(null);
+            xmlHttp.onreadystatechange = function () {
+                if (xmlHttp.readyState === 4) {
+                    if (xmlHttp.status >= 200 && xmlHttp.status < 300) {
+                        var questionarea = document.getElementById("questionarea");
+                        var answer = document.getElementById("answer");
+                        var preview = document.getElementById("preview");
+                        var jsonresult = JSON.parse(xmlHttp.responseText);
+                        questionarea.innerText= jsonresult.questionText;
+                        answer.innerText= jsonresult.answer;
+                        preview.src = jsonresult.questionImage;
+
+                        // document.getElementById("questionarea").innerText= xmlHttp.responseText;
+
+                        // if(xmlHttp.responseText != "0"){
+                        //     document.getElementById("msg").innerHTML = "<font color='red'>用户名已存在</font>";
+                        //
+                        // } else{
+                        //     document.getElementById("msg").innerHTML = "<font color='green'>用户名可以注册</font>";
+                        // }
+                    }
+                }
+
+            }
+
+        }
+
+        function printpdf(){
+            var listform = document.getElementById("listform");
+            listform.target = "newWindow";
+            var win = window.open("about:blank","newWindow","height=650,width=1000,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no");
+            win.focus();
+            listform.submit();
+        }
+    </script>
+    <!-- ボタン・リンククリック後に表示される画面の内容 -->
+    <div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">试题确认</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="mathupload" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+
+                            <b></b> <p th:text="${msg}"></p></b>
+                            <br/>
+                            <br/>
+                            <label class="control-label" for="questionarea">试题</label>
+                            <!--        <textarea rows="3" cols="80" class="form-control" id="questionarea" name="questionarea" th:field="*{questionArea}"></textarea>-->
+                            <textarea rows="7" cols="80" class="form-control" id="questionarea" name="questionarea" ></textarea>
+                            <br/>
+                            <textarea rows="3" cols="80" class="form-control" id="answer" name="answer" ></textarea>
+                            <br/>
+                            图片
+                            <img id="preview" width="100px" height="=30px">
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn btn-danger">削除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function onPreviewPdf() {
+            window.open("/static/plugins/pdfjs-2.5.207-dist/web/viewer.html?file=http://localhost:8080/media/preview");
+        }
+    </script>
+<!--    <button id="pdfpreview" onclick="window.open('mathpdfpreview')" >PDF</button>-->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </div>
 
 </body>

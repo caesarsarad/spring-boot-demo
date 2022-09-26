@@ -3,6 +3,7 @@ package com.example.springbootdemo.entity;
 import java.sql.Timestamp;
 
 public class Math {
+    private Boolean checkbox = false;
     private Integer questionId;
     private Integer subjectId;
     private Integer grade;
@@ -74,5 +75,13 @@ public class Math {
 
     public void setAddTimestamp(Timestamp addTimestamp) {
         this.addTimestamp = addTimestamp;
+    }
+
+    public Boolean getCheckbox() {
+        return checkbox;
+    }
+
+    public void setCheckbox(Boolean checkbox) {
+        this.checkbox = checkbox;
     }
 }

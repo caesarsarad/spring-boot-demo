@@ -27,7 +27,20 @@
        <textarea rows="3" cols="80" class="form-control" id="answer" name="answer" ></textarea>
         <br/>
         图片
-        <input type="file" name="image">
+        <input type="file"  name="image" id="myImage" accept="image/png,image/jpg,image/jpeg,image/gif" >
+        <br/>
+        <img id="preview" width="100px" height="=30px">
+        <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.js"></script>
+        <script>
+            $('#myImage').on('change', function (e) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#preview").attr('src', e.target.result);
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            });
+        </script>
+<!--        <img th:src="${filePath}">-->
         <br/>
         <br/>
         <br/>

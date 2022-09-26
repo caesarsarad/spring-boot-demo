@@ -3,7 +3,10 @@ package com.example.springbootdemo.dao;
 import com.example.springbootdemo.dto.MathDto;
 import com.example.springbootdemo.entity.Math;
 import com.example.springbootdemo.mapper.MathMapper;
+import com.example.springbootdemo.util.Constant;
 import com.example.springbootdemo.vo.MathVo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,9 +25,16 @@ public class MathDao {
 
     }
 
-    public List<Math> findMathByCondition(MathVo mathVo) {
+    public PageInfo<Math> findMathByCondition(MathVo mathVo, Integer pageNum) {
+        PageHelper.startPage(pageNum, Constant.INTEGER_MATH_PAGE_SIZE);
         List<Math> result = mapper.findMathByCondition(mathVo);
+        PageInfo<Math> pageInfo = new PageInfo<>(result);
 //        return mapper.findMathByCondition(mathVo);
-        return  result;
+        return  pageInfo;
+    }
+
+
+    public Math findMathById(Integer questionId) {
+        return mapper.findMathById(questionId);
     }
 }

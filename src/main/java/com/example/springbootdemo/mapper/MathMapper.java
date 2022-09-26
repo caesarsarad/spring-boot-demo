@@ -6,6 +6,7 @@ import com.example.springbootdemo.vo.MathVo;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -51,5 +52,18 @@ public interface MathMapper {
             @Result(property = "wrongCount", column = "wrong_count"),
             @Result(property = "addTimestamp", column = "add_timestamp")
     })
-    public List<Math> findMathByCondition(MathVo mathVo);
+    public ArrayList<Math> findMathByCondition(MathVo mathVo);
+
+    @Select("select * from question where question_id = #{questionId}")
+    @Results({
+            @Result(property = "questionId",  column = "question_id"),
+            @Result(property = "subjectId", column = "subject_id"),
+            @Result(property = "questionText", column = "question_text"),
+            @Result(property = "questionImage", column = "question_image"),
+            @Result(property = "answer", column = "answer"),
+            @Result(property = "wrongCount", column = "wrong_count"),
+            @Result(property = "addTimestamp", column = "add_timestamp")
+    })
+    @ResultType(com.example.springbootdemo.entity.Math.class)
+    public Math findMathById(Integer questionId);
 }

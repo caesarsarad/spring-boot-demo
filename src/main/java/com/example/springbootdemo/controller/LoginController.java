@@ -1,13 +1,18 @@
 package com.example.springbootdemo.controller;
 
+import com.example.springbootdemo.entity.Math;
 import com.example.springbootdemo.entity.User;
 import com.example.springbootdemo.service.LoginService;
+import com.example.springbootdemo.vo.MathVo;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 
 @Controller
 public class LoginController {
@@ -19,7 +24,7 @@ public class LoginController {
     }
 
     @GetMapping("/")
-    public String login(){
+    public String login() {
         return "/login/login.html";
     }
 //    @GetMapping("/login")
@@ -36,16 +41,30 @@ public class LoginController {
 //    }
 
     @GetMapping("/login")
-    public String loginToList(String userName, String password, HttpServletRequest request) {
+    public String loginToList(String userName, String password, HttpServletRequest request,Model model) {
 
-        int result =loginService.login(userName,password);
-        if(result > 0){
+        User result =loginService.login(userName,password);
+        if(result != null){
             HttpSession session = request.getSession();
             User user = new User();
-            session.setAttribute("user",user);
+            session.setAttribute("user",result);
+
+            model.addAttribute("mathVo",new MathVo());
+
+
+            PageInfo<Math> pageInfo = new PageInfo<>(new ArrayList<Math>());
+
+            model.addAttribute("mathPageInfo",pageInfo);
             return "/study/mathlist.html";
+
         }else{
             return  "/login/login.html";
         }
     }
+
+//        @GetMapping("/login")
+//    public String loginToList(Model model) {
+//        model.addAttribute("bookForm",new MovieForm());
+//            return "/study/test.html";
+//}
 }

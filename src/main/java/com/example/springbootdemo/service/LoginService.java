@@ -1,6 +1,7 @@
 package com.example.springbootdemo.service;
 
 import com.example.springbootdemo.dao.LoginDao;
+import com.example.springbootdemo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,9 @@ public class LoginService {
     }
 
 
-    public int login(String userName, String password){
+    public User login(String userName, String password){
         if(userName == null || password == null){
-            return  -1;
+            return  null;
         }
         String passwordMd5 = DigestUtils.md5DigestAsHex(password.getBytes());
 
