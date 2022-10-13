@@ -82,7 +82,8 @@
 <!--                <td th:text="${#dates.format(user.deleteDate, 'yyyy/MM/dd')}"></td>-->
 <!--                <td><a th:href="@{/mathdetail/(questionId=${math.questionId})}" class="btn btn-secondary">詳細</a></td>-->
                 <td>
-                    <button type="button" th:id="${math.questionId}" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal" onclick="opendetail(this.id)">ボタンで開く</button>
+                    <button type="button" th:id="${math.questionId}" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal" onclick="opendetail(this.id,1)">查看</button>
+                    <button type="button" th:id="${math.questionId}" class="btn btn-primary mb-12" data-toggle="modal" data-target="#testModal" onclick="opendetail(this.id,2)">修改</button>
                 </td>
             </tr>
             </tbody>
@@ -95,20 +96,20 @@
             </div>
             <ul  style="list-style: none;margin: 0px;padding: 0px;">
                 <li th:if="${mathPageInfo.hasPreviousPage}"} style="display:inline"><!--hasPreviousPage默认值为false， 如果有上一页，则不显示首页-->
-                    <a th:href="@{/mathsearch?pageNum=}+${1}">首页</a>
+                    <a th:href="@{/mathsearch?pageNum=}+${1}" id="btn-page-first">首页</a>
                 </li>
                 <li th:if="${mathPageInfo.hasPreviousPage}" style="display:inline"><!--hasPreviousPage默认值为false， 如果有上一页，则不显示-->
-                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.prePage}">上一页</a>
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.prePage}" id="btn-page-pre">上一页</a>
                 </li>
                 <li th:each="nav:${mathPageInfo.navigatepageNums}" style="display:inline"><!--navigatepageNums是一个数组：遍历所有导航页号。 -->
-                    <a th:href="@{/mathsearch?pageNum=}+${nav}" th:text="${nav}" th:if="${nav != mathPageInfo.pageNum}"></a><!--如果不是当前页则可以跳转其他页面。遍历展示-->
+                    <a th:href="@{/mathsearch?pageNum=}+${nav}" th:text="${nav}" th:if="${nav != mathPageInfo.pageNum}" th:id="btn-page-+${nav}"></a><!--如果不是当前页则可以跳转其他页面。遍历展示-->
                     <a th:class="${'active'}" th:if="${nav == mathPageInfo.pageNum}" th:text="${nav}"></a><!--如果是当前页则有样式。遍历 展示-->
                 </li>
                 <li th:if="${mathPageInfo.hasNextPage}" style="display:inline"><!--hasNextPage默认值为false， 如果没有下一页，则不显示-->
-                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.nextPage}">下一页</a>
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.nextPage}" id="btn-page-next">下一页</a>
                 </li>
                 <li th:if="${mathPageInfo.pageNum < mathPageInfo.pages}" style="display:inline"><!--如果当前页小于总页数则不显示尾页 -->
-                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.pages}">尾页</a>
+                    <a th:href="@{/mathsearch?pageNum=}+${mathPageInfo.pages}+@{&check=}+${hiddencheck}" id="btn-page-last">尾页</a>
                 </li>
             </ul>
         </div>
@@ -117,8 +118,32 @@
 
         
     </form>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.js"></script>
     <script type="text/javascript">
 
+        $('a[id^="btn-page"]').on("click", function (e) {
+            var checkedparam = '';
+            var uncheckedparam = '';
+            $('input[id$=".checkbox1"]').each(function() {
+                if ($(this).is(':checked')) {
+                        if (checkedparam != '') {
+                            checkedparam = checkedparam + '_' + $(this).closest('tr').find('input[id$="questionId"]').val();
+                        } else {
+                            checkedparam = checkedparam + $(this).closest('tr').find('input[id$="questionId"]').val();
+                        }
+                    } else{
+                        if (uncheckedparam != '') {
+                            uncheckedparam = uncheckedparam + '_' + $(this).closest('tr').find('input[id$="questionId"]').val();
+                        } else {
+                            uncheckedparam = uncheckedparam + $(this).closest('tr').find('input[id$="questionId"]').val();
+                        }
+                    }
+                }
+
+            )
+            $(this).attr("href",$(this).attr("href")+"&checkedParam="+checkedparam+"&uncheckedParam="+ uncheckedparam);
+        }
+        )
 
         function createXMLHttpRequest() {
             var xmlHttp;
@@ -134,24 +159,41 @@
                         xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
                     } catch (e){}
                 }
+
             }
             return xmlHttp;
         }
 
-        function opendetail(btnId){
+        function opendetail(btnId,mode){
             var xmlHttp = createXMLHttpRequest();
             xmlHttp.open("Get", "http://localhost:8080/studymanagement/getdetail?questionid=" + btnId);
             xmlHttp.send(null);
             xmlHttp.onreadystatechange = function () {
                 if (xmlHttp.readyState === 4) {
                     if (xmlHttp.status >= 200 && xmlHttp.status < 300) {
-                        var questionarea = document.getElementById("questionarea");
-                        var answer = document.getElementById("answer");
-                        var preview = document.getElementById("preview");
+
+                        var questionarea = $("#questionarea");
+                        var answer = $("#answer");
+                        var preview = $("#preview");
                         var jsonresult = JSON.parse(xmlHttp.responseText);
-                        questionarea.innerText= jsonresult.questionText;
-                        answer.innerText= jsonresult.answer;
-                        preview.src = jsonresult.questionImage;
+
+
+                        questionarea.val(jsonresult.questionText);
+                        answer.val(jsonresult.answer);
+                        preview.attr("src",jsonresult.questionImage);
+                        var questionId = $("#modelQuestionId")
+                        var hiddenQuestionId = $("#hiddenQuestionId")
+                        questionId.text("试题编号："+jsonresult.questionId);
+                        hiddenQuestionId.val(jsonresult.questionId);
+
+
+                        if(mode == 1){
+                            $("#questionarea").attr("disabled","disabled");
+                            $("#answer").attr("disabled","disabled");
+                        }else if(mode == 2){
+                            $("#questionarea").removeAttr("disabled");
+                            $("#answer").removeAttr("disabled");
+                        }
 
                         // document.getElementById("questionarea").innerText= xmlHttp.responseText;
 
@@ -171,7 +213,7 @@
         function printpdf(){
             var listform = document.getElementById("listform");
             listform.target = "newWindow";
-            var win = window.open("about:blank","newWindow","height=650,width=1000,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no");
+            var win = window.open("about:blank","newWindow","height=600,width=1500,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no");
             win.focus();
             listform.submit();
         }
@@ -184,35 +226,74 @@
                     <h4 class="modal-title" id="myModalLabel">试题确认</h4>
                 </div>
                 <div class="modal-body">
-                    <form action="mathupload" method="post" enctype="multipart/form-data">
+                    <form action="mathupload" method="post" enctype="multipart/form-data" id="mathupdateform">
                         <div class="form-group">
-
                             <b></b> <p th:text="${msg}"></p></b>
                             <br/>
+                            <span id="modelQuestionId" ></span>
+                            <input type="hidden" id = "hiddenQuestionId" name="hiddenQuestionId">
                             <br/>
-                            <label class="control-label" for="questionarea">试题</label>
                             <!--        <textarea rows="3" cols="80" class="form-control" id="questionarea" name="questionarea" th:field="*{questionArea}"></textarea>-->
                             <textarea rows="7" cols="80" class="form-control" id="questionarea" name="questionarea" ></textarea>
                             <br/>
                             <textarea rows="3" cols="80" class="form-control" id="answer" name="answer" ></textarea>
-                            <br/>
-                            图片
-                            <img id="preview" width="100px" height="=30px">
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
-                            <br/>
+
+                            <input type="file"  name="image" id="myImage" accept="image/png,image/jpg,image/jpeg,image/gif" >
+                            <img id="preview" width="60px" height="=10px">
                             <br/>
                             <br/>
                         </div>
                     </form>
                 </div>
+                <script>
+
+                    $('#myImage').on('change', function (e) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $("#preview").attr('src', e.target.result);
+                        }
+                        reader.readAsDataURL(e.target.files[0]);
+                    });
+                    $('#checkboxhead').on('change', function (e) {
+                    console.log($("input[type='checkbox']"));
+                        if($(this).is(':checked')){
+                            $("input[type='checkbox']").attr("checked", "true");
+                        }else{
+                            $("input[type='checkbox']").removeAttr("checked");
+                        }
+                    });
+
+                </script>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
-                    <button type="button" class="btn btn-danger">削除</button>
+                    <button type="button" id="btn_wrong" class="btn btn-danger">又错了</button>
+                    <button type="button" id="btn_save" class="btn btn-default">保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
                 </div>
+                <script>
+                    $('#btn_save').click(function (){
+                        var formdata = $('#mathupdateform');
+                        var data = new FormData(formdata[0]);
+                        console.log(formdata);
+                        $.ajax({
+                            url:'/studymanagement/mathupdate',
+                            type:'POST',
+                             // enctype:'multipart/form-data',
+                            data: data,
+                            processData: false,
+                            contentType:false,
+                            success: function () {
+
+                                console.log("SUCCESS : ");
+                                $("#btn_save").prop("disabled", true);
+
+                            }
+
+                        });
+                    });
+
+
+                </script>
             </div>
         </div>
     </div>

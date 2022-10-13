@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 @Component
@@ -31,7 +32,20 @@ public class MathService {
         mathDto.setAnswer(answer);
         mathDto.setWrongCount(0);
         mathDto.setAddTimestamp(new Timestamp(System.currentTimeMillis()));
+        mathDto.setUpdateTimestamp(new Timestamp(System.currentTimeMillis()));
         return mathDao.insertOneMath(mathDto);
+    }
+
+    public int updateMath(String questionarea, String answer,String filePath, String questionId){
+        MathDto mathDto = new MathDto();
+        mathDto.setQuestionText(questionarea);
+        if(filePath != null){
+            mathDto.setQuestionImage(filePath);
+        }
+        mathDto.setAnswer(answer);
+        mathDto.setQuestionId(Integer.valueOf(questionId));
+        mathDto.setUpdateTimestamp(new Timestamp(System.currentTimeMillis()));
+        return mathDao.updateOneMath(mathDto);
     }
 
     public PageInfo<Math> searchmath(MathVo mathVo, Integer pageNum) {
@@ -44,5 +58,9 @@ public class MathService {
     public Math getMathDetail(Integer questionId) {
         Math math= mathDao.findMathById(questionId);
         return math;
+    }
+
+    public List<Math> getMathByIdList(List<String> printList) {
+        return  mathDao.findMathByIdList(printList);
     }
 }

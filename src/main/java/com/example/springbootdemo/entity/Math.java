@@ -12,6 +12,7 @@ public class Math {
     private String answer;
     private Integer wrongCount;
     private Timestamp addTimestamp;
+    private Timestamp updateTimestamp;
 
     public Integer getQuestionId() {
         return questionId;
@@ -83,5 +84,13 @@ public class Math {
 
     public void setCheckbox(Boolean checkbox) {
         this.checkbox = checkbox;
+    }
+
+    public Timestamp getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setUpdateTimestamp(Timestamp updateTimestamp) {
+        this.updateTimestamp = updateTimestamp;
     }
 }

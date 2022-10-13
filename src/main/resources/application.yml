@@ -23,3 +23,8 @@ mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     call-setters-on-nulls: true
+#logging:
+#  level:
+#    root: debug
+#    com.example.springbootdemo.dao : debug
+

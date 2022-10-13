@@ -37,4 +37,12 @@ public class MathDao {
     public Math findMathById(Integer questionId) {
         return mapper.findMathById(questionId);
     }
+
+    public int updateOneMath(MathDto mathDto) {
+        return mapper.updateOneMath(mathDto);
+    }
+
+    public List<Math> findMathByIdList(List<String> printList) {
+        return mapper.findMathByIdList(printList);
+    }
 }

@@ -12,6 +12,10 @@ public class MathDto {
     private Integer wrongCount;
     private Timestamp addTimestamp;
 
+    private Timestamp updateTimestamp;
+
+    private Integer questionId;
+
     public Integer getSubjectId() {
         return subjectId;
     }
@@ -74,5 +78,21 @@ public class MathDto {
 
     public void setAddTimestamp(Timestamp addTimestamp) {
         this.addTimestamp = addTimestamp;
+    }
+
+    public Timestamp getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setUpdateTimestamp(Timestamp updateTimestamp) {
+        this.updateTimestamp = updateTimestamp;
+    }
+
+    public Integer getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
 }

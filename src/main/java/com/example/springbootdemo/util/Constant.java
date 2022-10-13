@@ -26,6 +26,14 @@ public class Constant {
 
     public static final String STRING_IMAGE_FILE_SAVE_PATH = "/mathimage/";
 
-    public static final Integer INTEGER_MATH_PAGE_SIZE = 2;
+    public static final String STRING_CHECKBOX_MAP = "checkBoxMap";
+
+    public static final String STRING_TRUE = "TRUE";
+
+    public static final String STRING_FALSE = "FALSE";
+
+    public static final Integer INTEGER_MATH_PAGE_SIZE = 5;
+
+    public static final Integer INTEGER_MATH_PDF_PAGE_SIZE = 3;
 
 }

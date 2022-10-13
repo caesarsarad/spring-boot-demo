@@ -9,7 +9,6 @@
   <link rel="stylesheet" th:href="@{/css/study/list.css}">
 </head>
 <body>
-
 <div layout:fragment="content">
    <div class="header border-bottom">
     <h1 class="h2">数学题入库</h1>
@@ -24,6 +23,7 @@
 <!--        <textarea rows="3" cols="80" class="form-control" id="questionarea" name="questionarea" th:field="*{questionArea}"></textarea>-->
         <textarea rows="7" cols="80" class="form-control" id="questionarea" name="questionarea" ></textarea>
         <br/>
+       答案
        <textarea rows="3" cols="80" class="form-control" id="answer" name="answer" ></textarea>
         <br/>
         图片
@@ -41,8 +41,6 @@
             });
         </script>
 <!--        <img th:src="${filePath}">-->
-        <br/>
-        <br/>
         <br/>
         <br/>
         <br/>
